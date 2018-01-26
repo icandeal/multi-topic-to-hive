@@ -1,6 +1,9 @@
 package com.etiantian
 
-import com.etiantian.order.{MessageOrder, OrderExecutor, LogTopicHandler}
+import java.io.FileInputStream
+import java.util.Properties
+
+import com.etiantian.order.{LogTopicHandler, MessageOrder, OrderExecutor}
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.StringDecoder
@@ -18,31 +21,34 @@ object MultiTopicHandler {
   val logger = Logger.getLogger(MultiTopicHandler.getClass)
 
   def main(args: Array[String]): Unit = {
-//    val properties = new Properties()
-//    if (args == null || args.length < 1) {
-//      throw new Exception("No Config File!!!")
-//    }
-//    properties.load(new FileInputStream(args(0)))
-//    var groupId = properties.getProperty("groupId")
-//    var brokers = properties.getProperty("brokers")
-//    val topics = properties.getProperty("topics")
-    val groupId = "KafkaCheckPoint111111"
-    val brokers = "t45.test.etiantian.com:9092"
-    val topics = "ycf3,ycf4"
+    val properties = new Properties()
+    if (args == null || args.length < 1) {
+      throw new Exception("No Config File!!!")
+    }
+    properties.load(new FileInputStream(args(0)))
+    val groupId = properties.getProperty("groupId")
+    val brokers = properties.getProperty("brokers")
+    val topics = properties.getProperty("topics")
+    val cycle = properties.getProperty("cycle").toInt
+    val offsetReset = properties.getProperty("offsetReset")
 
+//    val groupId = "KafkaCheckPoint111111"
+//    val brokers = "t45.test.etiantian.com:9092"
+//    val topics = "ycf3"
+//    val cycle = 10
+//    val offsetReset = "largest"
+//    val offsetReset = "smallest"
     val sparkConf = new SparkConf()
-      .setMaster("local[4]")
+//      .setMaster("local[4]")
       .setAppName("ycf:MultiTopicHandler")
-    val ssc = new StreamingContext(sparkConf, Seconds(8))
+    val ssc = new StreamingContext(sparkConf, Seconds(cycle))
 
     val kafkaParam = Map(
       "metadata.broker.list" -> brokers,
-      "group.id" -> groupId,
-      "auto.offset.reset" -> "smallest"
+      "group.id" -> groupId
     )
 
-    OrderExecutor.addOrder(new LogTopicHandler("ycf3"))
-    OrderExecutor.addOrder(new LogTopicHandler("ycf4"))
+    OrderExecutor.addOrder(new LogTopicHandler("logTopic"))
 
     var partionAndOffset = Map[TopicAndPartition,Long]()
     val kafkaCluster = new KafkaCluster(kafkaParam)
@@ -51,13 +57,22 @@ object MultiTopicHandler {
     //isLeft没有保存offset
     val consumerOffsets = kafkaCluster.getConsumerOffsets(kafkaParam.get("group.id").get, topicAndPartitionSet)
     val earliestOffset = kafkaCluster.getEarliestLeaderOffsets(topicAndPartitionSet).right.get
+    val latestOffset = kafkaCluster.getLatestLeaderOffsets(topicAndPartitionSet).right.get
     if (consumerOffsets.isLeft) {
-
-      earliestOffset.foreach(x => {
-        println("topic and partition = "+x._1)
-        println("offset = "+ x._2.offset)
-        partionAndOffset += (x._1 -> x._2.offset)
-      })
+      if(offsetReset!= null && offsetReset.equals("smallest")) {
+        earliestOffset.foreach(x => {
+          println("topic and partition = " + x._1)
+          println("earliest offset = " + x._2.offset)
+          partionAndOffset += (x._1 -> x._2.offset)
+        })
+      }
+      else {
+        latestOffset.foreach(x => {
+          println("topic and partition = " + x._1)
+          println("latest offset = " + x._2.offset)
+          partionAndOffset += (x._1 -> x._2.offset)
+        })
+      }
     }
     else {
       partionAndOffset = consumerOffsets.right.get
