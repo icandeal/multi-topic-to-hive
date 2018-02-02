@@ -1,11 +1,10 @@
 package com.etiantian.order
 
-import kafka.common.TopicAndPartition
 import org.apache.spark.rdd.RDD
 
-trait MessageOrder {
+abstract class MessageOrder(topicName: String) {
 
   def handlerMessage(rdd:RDD[(String, String)])
 
-  def getTopic():String
+  def getTopic():String = topicName
 }

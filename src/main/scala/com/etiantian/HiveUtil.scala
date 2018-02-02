@@ -25,7 +25,14 @@ object HiveUtil {
   def appendToHiveOrc(rdd:RDD[String], tableName:String, partionBy:String) = {
     if(!rdd.isEmpty()) {
       HiveUtil.getInstance(rdd.sparkContext)
-        .read.json(rdd).write.mode(SaveMode.Append).format("orc").partitionBy(partionBy).saveAsTable(tableName)
+//      val sqlContext = new HiveContext(rdd.sparkContext)
+//      sqlContext.setConf("hive.exec.dynamic.partition", "true")
+//      sqlContext.setConf("hive.exec.dynamic.partition.mode", "nonstrict")
+//      val df = sqlContext
+        .read.json(rdd)
+        .write.mode(SaveMode.Append).format("orc")
+        .partitionBy(partionBy)
+        .saveAsTable(tableName)
     }
   }
 }

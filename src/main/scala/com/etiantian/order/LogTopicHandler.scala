@@ -6,7 +6,7 @@ import com.etiantian.HiveUtil
 import org.apache.spark.rdd.RDD
 import org.json.JSONObject
 
-class LogTopicHandler(topicName: String) extends MessageOrder with Serializable {
+class LogTopicHandler(topicName: String) extends MessageOrder(topicName) with Serializable {
 
   override def handlerMessage(message: RDD[(String, String)]) = {
     val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -38,10 +38,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("3")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val actionTime = if (json.has("actiontime")) json.getString("actiontime") else ""
         format.parse(actionTime)
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
@@ -59,8 +58,8 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
 //        val userid = if (json.has("userid")) json.getLong("userid") else null
         val userid = json.getLong("userid")
 
+        row = new JSONObject()
         row.put("actiontime", actionTime)
-        row.put("c_date", cDate)
         row.put("c_time", cTime)
         row.put("messagetypeid",messageTypeId)
         row.put("nodeid", nodeId)
@@ -70,6 +69,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         row.put("servid", servid)
         row.put("srcid", srcid)
         row.put("userid", userid)
+        row.put("c_date", cDate)
 
       } catch {
         case e:Exception =>{}
@@ -77,17 +77,16 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(zsdxRdd, "sxlogsdb_zhishidaoxue_action_log_test", "c_date")
+    HiveUtil.appendToHiveOrc(zsdxRdd, "sxlogsdb_zhishidaoxue_action_log", "c_date")
 
     //  messageTypeId == 4
     val microCoursePointRdd = rdd.filter(x => {
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("4")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val actionTime = if (json.has("actiontime")) json.getString("actiontime") else ""
         format.parse(actionTime)
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
@@ -101,6 +100,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val srcid = if (json.has("srcid")) json.getInt("srcid") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+        row = new JSONObject()
         row.put("actiontime", actionTime)
         row.put("c_date", cDate)
         row.put("c_time", cTime)
@@ -118,7 +118,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(microCoursePointRdd, "sxlogsdb_micro_course_point_log_test", "c_date")
+    HiveUtil.appendToHiveOrc(microCoursePointRdd, "sxlogsdb_micro_course_point_log", "c_date")
 
 
     //  messageTypeId == 5 "5": "sxlogsdb_paper_sub_marking_log",
@@ -126,10 +126,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("5")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val actionTime = if (json.has("actiontime")) json.getString("actiontime") else ""
         format.parse(actionTime)
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
@@ -144,6 +143,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val srcid = if (json.has("srcid")) json.getInt("srcid") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+        row = new JSONObject()
         row.put("actiontime", actionTime)
         row.put("c_date", cDate)
         row.put("c_time", cTime)
@@ -162,17 +162,16 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(paperSubMarkingRdd, "sxlogsdb_paper_sub_marking_log_test","c_date")
+    HiveUtil.appendToHiveOrc(paperSubMarkingRdd, "sxlogsdb_paper_sub_marking_log","c_date")
 
     //  messageTypeId == 6 "6": "sxlogsdb_paper_answer_option_time_log",
     val paperAnsewerOptionLogsRdd = rdd.filter(x => {
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("6")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val answerid = if (json.has("answerid")) json.getLong("answerid") else null
         val chosetime = if (json.has("chosetime")) json.getString("chosetime") else null
         format.parse(chosetime)
@@ -187,6 +186,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val srcid = if (json.has("srcid")) json.getInt("srcid") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+        row = new JSONObject()
         row.put("answerid", answerid)
         row.put("c_date", cDate)
         row.put("c_time", cTime)
@@ -205,7 +205,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(paperAnsewerOptionLogsRdd, "sxlogsdb_paper_answer_option_time_log_test","c_date")
+    HiveUtil.appendToHiveOrc(paperAnsewerOptionLogsRdd, "sxlogsdb_paper_answer_option_time_log","c_date")
 
 
     //  messageTypeId == 7   "7": "sxlogsdb_paper_answer_stay_time_log",
@@ -213,10 +213,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("7")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
         format.parse(cTime)
 
@@ -233,6 +232,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val staytime = if (json.has("staytime")) json.getInt("staytime") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+        row = new JSONObject()
         row.put("c_date", cDate)
         row.put("c_time", cTime)
         row.put("leavetime",leavetime)
@@ -251,7 +251,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(paperAnswerStayTimeRdd, "sxlogsdb_paper_answer_stay_time_log_test","c_date")
+    HiveUtil.appendToHiveOrc(paperAnswerStayTimeRdd, "sxlogsdb_paper_answer_stay_time_log","c_date")
 
 
     //  messageTypeId == 8   "8": "sxlogsdb_yuxiwang_edition_log",
@@ -259,10 +259,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("8")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
         format.parse(cTime)
 
@@ -280,6 +279,8 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val version_id = if (json.has("version_id")) json.getInt("version_id") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+
+        row = new JSONObject()
         row.put("c_date", cDate)
         row.put("c_time", cTime)
         row.put("messagetypeid",messageTypeId)
@@ -299,7 +300,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(yuxiwangEditionLogRdd, "sxlogsdb_yuxiwang_edition_log_test","c_date")
+    HiveUtil.appendToHiveOrc(yuxiwangEditionLogRdd, "sxlogsdb_yuxiwang_edition_log","c_date")
 
 
     //  messageTypeId == 9   "9": "sxlogsdb_stu_action_data_log",
@@ -307,10 +308,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("9")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
         format.parse(cTime)
 
@@ -330,6 +330,8 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val video_position = if (json.has("video_position")) json.getLong("video_position") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+
+        row = new JSONObject()
         row.put("c_date", cDate)
         row.put("c_time", cTime)
         row.put("jid", jid)
@@ -351,7 +353,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(stuActionDataLogRdd, "sxlogsdb_stu_action_data_log_test","c_date")
+    HiveUtil.appendToHiveOrc(stuActionDataLogRdd, "sxlogsdb_stu_action_data_log","c_date")
 
 
     //  messageTypeId == 10   "10": "resourcelogs_resource_use_logs",
@@ -359,10 +361,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("10")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
         format.parse(cTime)
 
@@ -383,6 +384,8 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val srcid = if (json.has("srcid")) json.getInt("srcid") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+
+        row = new JSONObject()
         row.put("action_id", action_id)
         row.put("action_time", action_time)
         row.put("c_date", cDate)
@@ -403,7 +406,7 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(resourceUseLogRdd, "resourcelogs_resource_use_logs_test","c_date")
+    HiveUtil.appendToHiveOrc(resourceUseLogRdd, "resourcelogs_resource_use_logs","c_date")
 
 
     //  messageTypeId == 20  "20": "sxlogsdb_search_save_log"
@@ -411,10 +414,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       val json = new JSONObject(x._2)
       json.getString("messageTypeId").equals("20")
     }).map(x => {
-      val json = new JSONObject(x._2)
+      val json = new JSONObject(x._2.toLowerCase())
       var row:JSONObject = null
       try {
-        row = new JSONObject()
         val cTime = if (json.has("c_time")) json.getString("c_time") else ""
         format.parse(cTime)
 
@@ -428,6 +430,8 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
         val thetype = if (json.has("type")) json.getInt("type") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
+
+        row = new JSONObject()
         row.put("appid", appid)
         row.put("c_date", cDate)
         row.put("c_time", cTime)
@@ -445,10 +449,6 @@ class LogTopicHandler(topicName: String) extends MessageOrder with Serializable 
       if(row != null) row.toString() else null
     }).filter(x => x!=null)
 
-    HiveUtil.appendToHiveOrc(searchSaveLogsRdd, "sxlogsdb_search_save_log_test","c_date")
-  }
-
-  override def getTopic() = {
-    topicName
+    HiveUtil.appendToHiveOrc(searchSaveLogsRdd, "sxlogsdb_search_save_log","c_date")
   }
 }
