@@ -4,9 +4,12 @@ import java.text.SimpleDateFormat
 
 import com.etiantian.HiveUtil
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.types.StructType
 import org.json.JSONObject
 
-class LogTopicHandler(topicName: String) extends MessageOrder(topicName) with Serializable {
+class LogTopicHandler(val topicName: String) extends MessageOrder with Serializable {
+
+  override def getTopic(): String = topicName
 
   override def handlerMessage(message: RDD[(String, String)]) = {
     val format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -49,7 +52,9 @@ class LogTopicHandler(topicName: String) extends MessageOrder(topicName) with Se
 //        val messageTypeId = if (json.has("messagetypeid")) json.getInt("messagetypeid") else null
         val messageTypeId = json.getInt("messagetypeid")
 
-        val nodeId = if (json.has("nodeid")) json.getLong("nodeid") else null
+        var nodeId = if (json.has("nodeid")) json.getString("nodeid") else null
+        val step = if (nodeId.indexOf("_") != -1) nodeId.substring(nodeId.indexOf("_") + 1) else null
+        nodeId = nodeId.substring(0, nodeId.indexOf("_"))
         val noderelation = if (json.has("noderelation")) json.getInt("noderelation") else null
         val referenceid = if (json.has("referenceid")) json.getInt("referenceid") else null
         val resourceid = if (json.has("resourceid")) json.getLong("resourceid") else null
@@ -59,18 +64,30 @@ class LogTopicHandler(topicName: String) extends MessageOrder(topicName) with Se
         val userid = json.getLong("userid")
 
         row = new JSONObject()
-        row.put("actiontime", actionTime)
-        row.put("c_time", cTime)
-        row.put("messagetypeid",messageTypeId)
-        row.put("nodeid", nodeId)
-        row.put("noderelation", noderelation)
-        row.put("referenceid", referenceid)
-        row.put("resourceid", resourceid)
-        row.put("servid", servid)
-        row.put("srcid", srcid)
-        row.put("userid", userid)
+//        row.put("actiontime", actionTime)
+//        row.put("c_time", cTime)
+//        row.put("messagetypeid",messageTypeId)
+//        row.put("nodeid", nodeId)
+//        row.put("noderelation", noderelation)
+//        row.put("referenceid", referenceid)
+//        row.put("resourceid", resourceid)
+//        row.put("servid", servid)
+//        row.put("srcid", srcid)
+//        row.put("userid", userid)
+//        row.put("step", step)
+//        row.put("c_date", cDate)
+        row.put("01", actionTime)
+        row.put("02", cTime)
+        row.put("03",messageTypeId)
+        row.put("04", nodeId)
+        row.put("05", noderelation)
+        row.put("06", referenceid)
+        row.put("07", resourceid)
+        row.put("08", servid)
+        row.put("09", srcid)
+        row.put("10", userid)
+        row.put("11", step)
         row.put("c_date", cDate)
-
       } catch {
         case e:Exception =>{}
       }

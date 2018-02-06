@@ -98,7 +98,9 @@ object MultiTopicHandler {
     }).foreachRDD(rdd => {
 
       val topicSet = OrderExecutor.executeOrder(rdd)
-
+      logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+      logger.warn("write topic offset :"+ topicSet.mkString(" && "))
+      logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
       offsetRanges.foreach(x => {
         if(topicSet.contains(x.topic)) {
           val tap = x.topicAndPartition()

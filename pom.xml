@@ -38,7 +38,11 @@
       <artifactId>json</artifactId>
       <version>20160810</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka_2.10</artifactId>
+      <version>0.8.2.2</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-streaming-kafka-0-8_2.10</artifactId>
@@ -56,11 +60,6 @@
       <artifactId>spark-streaming_2.10</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.kafka</groupId>
-      <artifactId>kafka_2.10</artifactId>
-      <version>0.8.2.2</version>
     </dependency>
 
     <dependency>
