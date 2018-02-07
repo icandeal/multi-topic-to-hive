@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat
 
 import com.etiantian.HiveUtil
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.types.StructType
 import org.json.JSONObject
 
 class LogTopicHandler(val topicName: String) extends MessageOrder with Serializable {
@@ -92,9 +91,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(zsdxRdd, "sxlogsdb_zhishidaoxue_action_log", "c_date")
 
     //  messageTypeId == 4
     val microCoursePointRdd = rdd.filter(x => {
@@ -133,9 +131,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(microCoursePointRdd, "sxlogsdb_micro_course_point_log", "c_date")
 
 
     //  messageTypeId == 5 "5": "sxlogsdb_paper_sub_marking_log",
@@ -177,9 +174,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(paperSubMarkingRdd, "sxlogsdb_paper_sub_marking_log","c_date")
 
     //  messageTypeId == 6 "6": "sxlogsdb_paper_answer_option_time_log",
     val paperAnsewerOptionLogsRdd = rdd.filter(x => {
@@ -220,9 +216,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(paperAnsewerOptionLogsRdd, "sxlogsdb_paper_answer_option_time_log","c_date")
 
 
     //  messageTypeId == 7   "7": "sxlogsdb_paper_answer_stay_time_log",
@@ -266,9 +261,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(paperAnswerStayTimeRdd, "sxlogsdb_paper_answer_stay_time_log","c_date")
 
 
     //  messageTypeId == 8   "8": "sxlogsdb_yuxiwang_edition_log",
@@ -315,9 +309,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(yuxiwangEditionLogRdd, "sxlogsdb_yuxiwang_edition_log","c_date")
 
 
     //  messageTypeId == 9   "9": "sxlogsdb_stu_action_data_log",
@@ -368,9 +361,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(stuActionDataLogRdd, "sxlogsdb_stu_action_data_log","c_date")
 
 
     //  messageTypeId == 10   "10": "resourcelogs_resource_use_logs",
@@ -421,9 +413,8 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
-    HiveUtil.appendToHiveOrc(resourceUseLogRdd, "resourcelogs_resource_use_logs","c_date")
 
 
     //  messageTypeId == 20  "20": "sxlogsdb_search_save_log"
@@ -464,8 +455,16 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         case e:Exception =>{}
       }
       if(row != null) row.toString() else null
-    }).filter(x => x!=null)
+    }).filter(_ != null)
 
+    HiveUtil.appendToHiveOrc(zsdxRdd, "sxlogsdb_zhishidaoxue_action_log", "c_date")
+    HiveUtil.appendToHiveOrc(microCoursePointRdd, "sxlogsdb_micro_course_point_log", "c_date")
+    HiveUtil.appendToHiveOrc(paperSubMarkingRdd, "sxlogsdb_paper_sub_marking_log","c_date")
+    HiveUtil.appendToHiveOrc(paperAnsewerOptionLogsRdd, "sxlogsdb_paper_answer_option_time_log","c_date")
+    HiveUtil.appendToHiveOrc(paperAnswerStayTimeRdd, "sxlogsdb_paper_answer_stay_time_log","c_date")
+    HiveUtil.appendToHiveOrc(yuxiwangEditionLogRdd, "sxlogsdb_yuxiwang_edition_log","c_date")
+    HiveUtil.appendToHiveOrc(stuActionDataLogRdd, "sxlogsdb_stu_action_data_log","c_date")
+    HiveUtil.appendToHiveOrc(resourceUseLogRdd, "resourcelogs_resource_use_logs","c_date")
     HiveUtil.appendToHiveOrc(searchSaveLogsRdd, "sxlogsdb_search_save_log","c_date")
   }
 }
