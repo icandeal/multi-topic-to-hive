@@ -194,7 +194,7 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         val messageTypeId = json.getInt("messagetypeid")
 
         val paperid = if (json.has("paperid")) json.getLong("paperid") else null
-        val questionid = if (json.has("questionid")) json.getLong("questionid") else null
+        val questionid = json.getLong("questionid")
         val servid = if (json.has("servid")) json.getInt("servid") else null
         val srcid = if (json.has("srcid")) json.getInt("srcid") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
@@ -238,25 +238,28 @@ class LogTopicHandler(val topicName: String) extends MessageOrder with Serializa
         val messageTypeId = json.getInt("messagetypeid")
 
         val paperid = if (json.has("paperid")) json.getLong("paperid") else null
-        val questionid = if (json.has("questionid")) json.getLong("questionid") else null
+        val questionStr = if (json.has("questionid")) json.getString("questionid") else null
+        val teamQuesId = if (questionStr.indexOf("|") != -1) questionStr.substring(0, questionStr.indexOf("|")).toLong else null
+        val questionid = if (questionStr.indexOf("|") != -1) questionStr.substring(questionStr.indexOf("|") + 1).toLong else questionStr.toLong
         val servid = if (json.has("servid")) json.getInt("servid") else null
         val srcid = if (json.has("srcid")) json.getInt("srcid") else null
         val staytime = if (json.has("staytime")) json.getInt("staytime") else null
         val userid = if (json.has("userid")) json.getLong("userid") else null
 
         row = new JSONObject()
+        row.put("01", cTime)
+        row.put("02",leavetime)
+        row.put("03",messageTypeId)
+
+        row.put("04", paperid)
+        row.put("05", questionid)
+        row.put("06", servid)
+        row.put("07", srcid)
+        row.put("08", staytime)
+        row.put("09", userid)
+        row.put("10", teamQuesId)
+
         row.put("c_date", cDate)
-        row.put("c_time", cTime)
-        row.put("leavetime",leavetime)
-        row.put("messagetypeid",messageTypeId)
-
-        row.put("paperid", paperid)
-        row.put("questionid", questionid)
-        row.put("servid", servid)
-        row.put("srcid", srcid)
-        row.put("staytime", staytime)
-        row.put("userid", userid)
-
       } catch {
         case e:Exception =>{}
       }
